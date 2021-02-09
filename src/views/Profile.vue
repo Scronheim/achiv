@@ -6,12 +6,34 @@
           <v-card-text>
             <v-row>
               <v-col cols="2">
-<!--                <v-avatar size="120">-->
-                  <v-img class="thumbnail" :src="$store.getters.user.picture.large"/>
-<!--                </v-avatar>-->
+                <v-hover>
+                  <template v-slot:default="{ hover }">
+                    <v-img class="thumbnail" :src="$store.getters.user.avatar" lazy-src="https://i.pinimg.com/originals/ff/a0/9a/ffa09aec412db3f54deadf1b3781de2a.png"
+                           width="150" height="150">
+                      <v-fade-transition>
+                        <v-overlay
+                            v-if="hover"
+                            absolute
+                            color="#036358"
+                        >
+                          <v-btn icon><v-icon>mdi-camera</v-icon></v-btn>
+                        </v-overlay>
+                      </v-fade-transition>
+                      <template v-slot:placeholder v-if="$store.getters.user.avatar">
+                        <v-row
+                            class="fill-height ma-0"
+                            align="center"
+                            justify="center"
+                        >
+                          <v-progress-circular indeterminate color="grey lighten-5"/>
+                        </v-row>
+                      </template>
+                    </v-img>
+                  </template>
+                </v-hover>
               </v-col>
               <v-col>
-                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.name.first }} {{ $store.getters.user.name.last }}</p><br/>
+                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.first_name }} {{ $store.getters.user.last_name }}</p><br/>
                 <v-progress-linear
                     background-color="grey darken-1"
                     color="yellow lighten-1"
@@ -53,16 +75,27 @@
       </v-col>
       <v-col>
         <v-card>
-          <v-card-title>О себе</v-card-title>
+          <v-card-title>О себе
+            <v-spacer/>
+            <v-btn icon @click="showEditTextArea"><v-icon>mdi-pencil</v-icon></v-btn>
+          </v-card-title>
           <v-card-text>
-            Я самый лучший сотрудник. Не увольняйте плиз
+            <v-row>
+              <v-col>
+                {{ $store.getters.user.about }}
+                <template v-if="editAboutMe">
+                  <v-textarea v-model="aboutText" label="Напиши о себе" clearable/>
+                  <v-btn color="success" @click="saveAboutMe">Сохранить</v-btn>
+                </template>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
         <v-card class="mt-3">
           <v-card-title>Все достижения</v-card-title>
           <v-card-text>
             <v-row>
-              <v-img src="/perk-icons1.png" @click="achievDialog = true"/>
+              <v-img src="/perk-icons1.png" @click="achievementsDialog = true"/>
               <v-img src="/perk-icons1.png"/>
               <v-img src="/perk-icons1.png"/>
               <v-img src="/perk-icons1.png"/>
@@ -81,7 +114,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="achievDialog" width="30%">
+    <v-dialog v-model="achievementDialog" width="30%">
       <v-card color="grey darken-3">
         <v-card-title>Руководитель</v-card-title>
         <v-card-text>
@@ -102,12 +135,26 @@
 <script>
 export default {
   name: 'MainPage',
-  mounted() {
-    this.$store.dispatch('getUser')
-  },
   data: () => ({
-    achievDialog: false
+    editAboutMe: false,
+    achievementDialog: false,
+    aboutText: ''
   }),
+  methods: {
+    showEditTextArea() {
+      this.aboutText = this.$store.getters.user.about
+      this.editAboutMe = !this.editAboutMe
+    },
+    saveAboutMe() {
+      this.$store.dispatch('saveAboutMe', this.aboutText).then((response) => {
+        if (response.data.results === 1) {
+          this.$toast.success('Успешно сохранено')
+          this.editAboutMe = false
+          this.$store.dispatch('aboutMe')
+        }
+      })
+    }
+  }
 }
 </script>
 

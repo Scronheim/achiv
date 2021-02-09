@@ -7,10 +7,10 @@
     >
       <div class="d-flex align-center">
         <v-img
-          alt="Vuetify Logo"
+          alt="Beeline Logo"
           class="shrink mr-2"
           contain
-          src="https://static.beeline.ru/upload/images/b2c/25224-beeline-logo.png"
+          src="/img/beeline-logo.png"
           transition="scale-transition"
           width="60"
         />
@@ -19,17 +19,33 @@
 
       <v-spacer/>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        Войти
-      </v-btn>
+      <span v-if="isAuth">
+        <v-menu bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn text v-bind="attrs" v-on="on">{{ $store.getters.user.username }}</v-btn>
+            </template>
+
+            <v-list>
+              <v-list-item link to="/admin" v-if="isAdmin">
+                <v-list-item-title>Админка</v-list-item-title>
+              </v-list-item>
+              <v-list-item link to="/profile">
+                <v-list-item-title>Профиль</v-list-item-title>
+              </v-list-item>
+              <v-list-item link @click="logout">
+                <v-list-item-title>Выйти</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+      </span>
+      <span v-else>
+        <v-btn link to="/login" class="mr-2">Войти</v-btn>
+        <v-btn link to="/register">Регистрация</v-btn>
+      </span>
     </v-app-bar>
 
     <v-main>
-      <main-page/>
+      <router-view/>
     </v-main>
     <v-footer padless>
       <v-row
@@ -57,18 +73,38 @@
 </template>
 
 <script>
-import MainPage from './components/MainPage';
-
 export default {
   name: 'App',
-  mounted() {
-    this.$vuetify.theme.dark = true
+  created() {
+    if (this.$store.state.token !== '') {
+      this.$store.dispatch('aboutMe').then(() => {
+        if (this.$store.getters.user.theme === 'dark') {
+          this.$vuetify.theme.dark = true
+        }
+      })
+    }
   },
-  components: {
-    MainPage,
+  computed: {
+    isAuth() {
+      return this.$store.getters.isLoggedIn
+    },
+    isAdmin() {
+      return this.$store.getters.isAdmin === true
+    },
   },
   data: () => ({
     //
   }),
+  methods: {
+    logout() {
+      this.$store.dispatch('logout').then(() => {
+        this.$router.push('/login')
+      })
+    }
+  }
 };
 </script>
+
+<style lang="scss">
+
+</style>

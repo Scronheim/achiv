@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "express": "nodemon node server/index.js"
+  },
+  "description": "server",
+  "dependencies": {
+    "bcrypt": "latest",
+    "body-parser": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "express-fileupload": "latest",
+    "jsonwebtoken": "latest",
+    "knex": "latest",
+    "moment": "latest",
+    "mysql2": "latest",
+    "lodash": "^4.17.20"
+  }
+}
