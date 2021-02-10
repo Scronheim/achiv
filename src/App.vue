@@ -10,11 +10,10 @@
           alt="Beeline Logo"
           class="shrink mr-2"
           contain
-          src="/img/beeline-logo.png"
+          src="/img/tp2-logo.png"
           transition="scale-transition"
-          width="60"
+          width="300"
         />
-        Портал достижений
       </div>
 
       <v-spacer/>
