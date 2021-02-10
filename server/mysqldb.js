@@ -47,6 +47,10 @@ class DB {
   updateAboutMe(data) {
     return this.db(USERS_TABLE).where('username', '=', data.username).update('about', data.about);
   }
+
+  updateAvatar(username, avatarPath) {
+    return this.db(USERS_TABLE).where('username', '=', username).update('avatar', avatarPath);
+  }
 }
 
 module.exports = DB;

@@ -41,11 +41,6 @@ export default new Vuex.Store({
         commit('setAchievements', response.data.results)
       })
     },
-    getUser(context) {
-      axios.get(`https://randomuser.me/api/`).then((response) => {
-        context.commit('setUser', response.data.results[0])
-      })
-    },
     aboutMe({state, commit}) {
       return axios.get('/api/me', {headers: {'x-access-token': state.token}}).then((response) => {
         let data = {
@@ -63,6 +58,9 @@ export default new Vuex.Store({
         about: text
       }
       return axios.patch('/api/aboutMe', payload)
+    },
+    uploadAvatar(context, avatar) {
+      return axios.post('/api/uploadAvatar', avatar)
     },
     login(context, user) {
       return new Promise((resolve, reject) => {

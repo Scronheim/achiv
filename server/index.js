@@ -9,6 +9,7 @@ const cors = require('cors');
 const moment = require('moment');
 const FileUpload = require('express-fileupload');
 const _ = require('lodash')
+const fs = require('fs').promises
 
 const mysqlDB = new mysqldb();
 const app = express();
@@ -79,6 +80,16 @@ router.get('/api/me', function(req, res) {
     });
   });
 });
+
+router.post('/api/uploadAvatar', (req, res) => {
+  let file = req.files.avatar
+  fs.rmdir(`/var/www/html/files/${req.body.username}`, {recursive: true}).then(() => {
+    file.mv(`/var/www/html/files/${req.body.username}/${file.name}`)
+  })
+  mysqlDB.updateAvatar(req.body.username, `/files/${req.body.username}/${file.name}`).then(() => {
+    res.send({success: true});
+  })
+})
 
 let port = process.env.PORT || 3000;
 app.use(router)

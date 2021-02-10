@@ -16,7 +16,8 @@
                             absolute
                             color="#036358"
                         >
-                          <v-btn icon><v-icon>mdi-camera</v-icon></v-btn>
+                          <v-file-input dense prepend-icon="mdi-camera" hide-input name="avatar"
+                                        v-model="avatarFile" @change="uploadAvatar"/>
                         </v-overlay>
                       </v-fade-transition>
                       <template v-slot:placeholder v-if="$store.getters.user.avatar">
@@ -33,7 +34,8 @@
                 </v-hover>
               </v-col>
               <v-col>
-                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.first_name }} {{ $store.getters.user.last_name }}</p><br/>
+                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.first_name }} {{ $store.getters.user.last_name }} (Группа № {{ $store.getters.user.group_number }})</p>
+                <br/>
                 <v-progress-linear
                     background-color="grey darken-1"
                     color="yellow lighten-1"
@@ -138,9 +140,21 @@ export default {
   data: () => ({
     editAboutMe: false,
     achievementDialog: false,
-    aboutText: ''
+    aboutText: '',
+    avatarFile: null
   }),
   methods: {
+    uploadAvatar() {
+      let formData = new FormData()
+      formData.append('avatar', this.avatarFile)
+      formData.append('username', this.$store.getters.user.username)
+      this.$store.dispatch('uploadAvatar', formData).then((response) => {
+        if (response.data.success) {
+          this.$toast.success('Аватарка успешно загружена')
+          this.$store.dispatch('aboutMe')
+        }
+      })
+    },
     showEditTextArea() {
       this.aboutText = this.$store.getters.user.about
       this.editAboutMe = !this.editAboutMe
