@@ -8,24 +8,44 @@
             <v-spacer></v-spacer>
           </v-toolbar>
           <v-card-text>
-            <v-form>
+            <v-form v-if="!showPasswordForm">
               <v-text-field
-                  v-model="user.email"
-                  label="Email"
-                  name="email"
-                  prepend-icon="mdi-account"
+                  v-model="user.winlogin"
+                  label="Winlogin"
+                  name="winlogin"
+                  prepend-icon="mdi-microsoft-windows"
                   type="text"
-              ></v-text-field>
-
+              />
               <v-text-field
                   v-model="user.password"
                   id="password"
+                  placeholder="Если это ваш первый вход, то оставьте пустым"
                   label="Пароль"
                   name="password"
                   prepend-icon="mdi-lock"
                   type="password"
                   @keydown.enter="login"
-              ></v-text-field>
+              />
+            </v-form>
+            <v-form v-else>
+              <v-text-field
+                  v-model="user.password"
+                  id="password"
+                  label="Задайте пароль"
+                  name="password"
+                  prepend-icon="mdi-lock"
+                  type="password"
+              />
+              <v-text-field
+                  v-model="user.passwordConfirm"
+                  id="password"
+                  label="Повторите пароль"
+                  name="password"
+                  prepend-icon="mdi-lock"
+                  type="password"
+                  :rules="[user.password === user.passwordConfirm || 'Пароли должны совпадать']"
+                  @keydown.enter="login"
+              />
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -44,19 +64,39 @@ export default {
 
   data: () => ({
     user: {
-      email: '',
-      password: ''
-    }
+      winlogin: null,
+      password: null,
+      passwordConfirm: null
+    },
+    showPasswordForm: false
   }),
   methods: {
     login() {
-      this.$store.dispatch('login', this.user).then(() => {
-        this.$router.push('/profile')
-      }).catch((error) => {
-        if (error.response.status === 401) {
-          this.$toast.error('Неверный логин или пароль')
-        }
-      })
+      if (this.user.passwordConfirm) {
+        this.$store.dispatch('setUserPassword', this.user).then((response) => {
+          if (response.data === 1) {
+            this.$toast.success('Пароль успешно задан. Теперь вы можете войти')
+            this.user.passwordConfirm = null
+            this.$store.dispatch('login', this.user).then(() => {
+              this.$router.push('/profile')
+            })
+          }
+        })
+      } else {
+        this.$store.dispatch('login', this.user).then((response) => {
+          if (response.data.password === false) {
+            this.$toast.success(`Пользователь ${this.user.winlogin} найден. Задайте пароль`)
+            this.user.password = null
+            this.showPasswordForm = true
+          } else if (response.data.auth) {
+            this.$router.push('/profile')
+          }
+        }).catch((error) => {
+          if (error.response.status === 401) {
+            this.$toast.error(`Пользователь или пароль не найдены`)
+          }
+        })
+      }
     }
   }
 }

@@ -28,17 +28,59 @@ router.route('/api/achievements')
     });
   })
 
-router.route('/api/aboutMe')
-  .patch((req, res) => {
-    mysqlDB.updateAboutMe(req.body).then((response) => {
+router.route('/api/users')
+  .get((req, res) => {
+    mysqlDB.selectUsers().then((response) => {
       res.json({results: response})
     });
   })
 
+router.route('/api/user')
+  .post((req, res) => {
+    mysqlDB.insertUser(req.body).then(() => {
+      res.json({results: {success: true}})
+    }).catch((error) => {
+      res.json({results: error})
+    })
+  })
+
+router.route('/api/setUserPassword')
+  .patch((req, res) => {
+    mysqlDB.searchUserByWinlogin(req.body.winlogin).then((response) => {
+      if (response.length > 0 && !response[0].password) {
+        req.body.password = bcrypt.hashSync(req.body.password, 8);
+        mysqlDB.changeUserPassword(req.body).then((answer) => {
+          res.json(answer)
+        })
+      }
+    })
+})
+
+router.route('/api/setUserTheme')
+  .patch((req, res) => {
+    mysqlDB.updateTheme(req.body).then((response) => {
+      res.json({results: response})
+    })
+  })
+
+router.route('/api/aboutMe')
+  .patch((req, res) => {
+    mysqlDB.updateAboutMe(req.body).then((response) => {
+      res.json({results: response})
+    }).catch((error) => {
+      res.json({results: error})
+    })
+  })
+
 router.post('/api/login', (req, res) => {
-  mysqlDB.searchUserByEmail(req.body.email).then((response) => {
+  mysqlDB.searchUserByWinlogin(req.body.winlogin).then((response) => {
+    let passwordIsValid
     if (response.length > 0) {
-      let passwordIsValid = bcrypt.compareSync(req.body.password, response[0].password);
+      if (response[0].password) {
+        passwordIsValid = bcrypt.compareSync(req.body.password, response[0].password);
+      } else {
+        res.status(200).send({password: false})
+      }
       if (!passwordIsValid) return res.status(401).send({ auth: false, token: null});
       let token = jwt.sign({ id: response[0].id }, config.secret, {
         expiresIn: 86400 // expires in 24 hours
@@ -56,7 +98,7 @@ router.post('/api/register', function(req, res) {
   req.body.password = bcrypt.hashSync(req.body.password, 8);
   req.body.is_admin = 0;
   mysqlDB.insertUser(req.body).then(() => {
-    mysqlDB.searchUserByEmail(req.body.email).then((response) => {
+    mysqlDB.searchUserByWinlogin(req.body.winlogin).then((response) => {
       let token = jwt.sign({id: response[0].id}, config.secret, {
         expiresIn: 86400 // 24 hours
       });
@@ -83,10 +125,10 @@ router.get('/api/me', function(req, res) {
 
 router.post('/api/uploadAvatar', (req, res) => {
   let file = req.files.avatar
-  fs.rmdir(`/var/www/html/files/${req.body.username}`, {recursive: true}).then(() => {
-    file.mv(`/var/www/html/files/${req.body.username}/${file.name}`)
+  fs.rmdir(`/var/www/html/files/${req.body.winlogin}`, {recursive: true}).then(() => {
+    file.mv(`/var/www/html/files/${req.body.winlogin}/${file.name}`)
   })
-  mysqlDB.updateAvatar(req.body.username, `/files/${req.body.username}/${file.name}`).then(() => {
+  mysqlDB.updateAvatar(req.body.winlogin, `/files/${req.body.winlogin}/${file.name}`).then(() => {
     res.send({success: true});
   })
 })

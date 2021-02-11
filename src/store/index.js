@@ -8,12 +8,16 @@ export default new Vuex.Store({
   state: {
     achievements: [],
     user: {},
+    users: [],
     status: '',
     token: localStorage.getItem('token') || '',
   },
   mutations: {
     setAchievements(state, payload) {
       state.achievements = payload
+    },
+    setUsers(state, payload) {
+      state.users = payload
     },
     setUser(state, payload) {
       state.user = payload
@@ -36,9 +40,17 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    addUser(context, payload) {
+      return axios.post(`/api/user`, payload)
+    },
     getAchievements({commit}) {
       axios.get(`/api/achievements`).then((response) => {
         commit('setAchievements', response.data.results)
+      })
+    },
+    getUsers({commit}) {
+      axios.get(`/api/users`).then((response) => {
+        commit('setUsers', response.data.results)
       })
     },
     aboutMe({state, commit}) {
@@ -62,16 +74,30 @@ export default new Vuex.Store({
     uploadAvatar(context, avatar) {
       return axios.post('/api/uploadAvatar', avatar)
     },
+    setUserPassword(context, payload) {
+      return axios.patch('/api/setUserPassword', payload)
+    },
+    setUserTheme(context, theme) {
+      let payload = {
+        winlogin: context.state.user.winlogin,
+        theme: theme
+      }
+      return axios.patch('/api/setUserTheme', payload)
+    },
     login(context, user) {
       return new Promise((resolve, reject) => {
         context.commit('auth_request')
         axios({url: `/api/login`, data: user, method: 'POST' })
           .then(resp => {
-            localStorage.setItem('token', resp.data.token)
-            axios.defaults.headers.common['Authorization'] = resp.data.token
-            let data = {token: resp.data.token, user:resp.data.user}
-            context.commit('auth_success', data)
-            resolve(resp)
+            if (resp.data.password === false) {
+              resolve(resp)
+            } else {
+              localStorage.setItem('token', resp.data.token)
+              axios.defaults.headers.common['Authorization'] = resp.data.token
+              let data = {token: resp.data.token, user: resp.data.user}
+              context.commit('auth_success', data)
+              resolve(resp)
+            }
           })
           .catch(err => {
             context.commit('auth_error')
@@ -116,6 +142,7 @@ export default new Vuex.Store({
   },
   getters: {
     user: state => state.user,
+    users: state => state.users,
     isLoggedIn: state => !!state.token,
     authStatus: state => state.status,
     isAdmin: state => !!state.user.is_admin,

@@ -34,7 +34,9 @@
                 </v-hover>
               </v-col>
               <v-col>
-                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.first_name }} {{ $store.getters.user.last_name }} (Группа № {{ $store.getters.user.group_number }})</p>
+                <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.full_name }}
+                  (Группа № {{ $store.getters.user.group_number }}, {{ $store.getters.user.position }})</p>
+                <p class="subtitle-1">Стаж: {{ $store.getters.user.experience }}, Дата приёма в ТП2: {{ $store.getters.user.invite_date | humanDate }}</p>
                 <br/>
                 <v-progress-linear
                     background-color="grey darken-1"
@@ -147,7 +149,7 @@ export default {
     uploadAvatar() {
       let formData = new FormData()
       formData.append('avatar', this.avatarFile)
-      formData.append('username', this.$store.getters.user.username)
+      formData.append('winlogin', this.$store.getters.user.winlogin)
       this.$store.dispatch('uploadAvatar', formData).then((response) => {
         if (response.data.success) {
           this.$toast.success('Аватарка успешно загружена')

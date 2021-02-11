@@ -4,9 +4,12 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import router from './router'
 import Toast from 'vue-toastification';
+import moment from 'moment'
 import 'vue-toastification/dist/index.css';
 
 Vue.config.productionTip = false
+
+Vue.prototype.$moment = moment
 
 Vue.use(Toast, {
   transition: "Vue-Toastification__bounce",
@@ -25,6 +28,11 @@ Vue.use(Toast, {
   icon: true,
   rtl: false,
 });
+
+Vue.filter('humanDate', ((value) => {
+  if (!value) return ''
+  return moment(value).format('DD.MM.YYYY')
+}))
 
 new Vue({
   store,

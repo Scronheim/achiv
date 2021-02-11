@@ -28,12 +28,16 @@ class DB {
     return this.db.select().from(ACHIEVEMENTS_TABLE).orderBy('id', 'asc')
   }
 
+  selectUsers() {
+    return this.db.select().from(USERS_TABLE).orderBy('id', 'asc')
+  }
+
   insertUser(data) {
     return this.db(USERS_TABLE).insert(data);
   }
 
-  searchUserByEmail(email) {
-    return this.db.select().from(USERS_TABLE).where('email', '=', email);
+  searchUserByWinlogin(winlogin) {
+    return this.db.select().from(USERS_TABLE).where('winlogin', '=', winlogin);
   }
 
   searchUserById(id) {
@@ -41,15 +45,19 @@ class DB {
   }
 
   changeUserPassword(data) {
-    return this.db(USERS_TABLE).where(data.field, '=', data.value).update('password', data.password);
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('password', data.password);
   }
 
   updateAboutMe(data) {
-    return this.db(USERS_TABLE).where('username', '=', data.username).update('about', data.about);
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('about', data.about);
   }
 
-  updateAvatar(username, avatarPath) {
-    return this.db(USERS_TABLE).where('username', '=', username).update('avatar', avatarPath);
+  updateTheme(data) {
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('theme', data.theme);
+  }
+
+  updateAvatar(winlogin, avatarPath) {
+    return this.db(USERS_TABLE).where('winlogin', '=', winlogin).update('avatar', avatarPath);
   }
 }
 
