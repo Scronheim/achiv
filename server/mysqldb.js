@@ -1,5 +1,6 @@
 "use strict"
 const ACHIEVEMENTS_TABLE = 'achievements';
+const USER_ACHIEVEMENTS_TABLE = 'users_achievements';
 const USERS_TABLE = 'users'
 
 class DB {
@@ -42,6 +43,10 @@ class DB {
 
   searchUserById(id) {
     return this.db.select().from(USERS_TABLE).where('id', '=', id);
+  }
+
+  searchUserAchievements(id) {
+    return this.db.select().from(USER_ACHIEVEMENTS_TABLE).where('user_id', '=', id)
   }
 
   changeUserPassword(data) {

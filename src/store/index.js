@@ -141,6 +141,7 @@ export default new Vuex.Store({
   modules: {
   },
   getters: {
+    achievements: state => state.achievements,
     user: state => state.user,
     users: state => state.users,
     isLoggedIn: state => !!state.token,

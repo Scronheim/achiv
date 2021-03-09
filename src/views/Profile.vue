@@ -52,26 +52,15 @@
         <v-card class="mt-3">
           <v-card-title>Мои достижения</v-card-title>
           <v-card-text>
-            <v-row>
+            <v-row v-for="(a, index) in myAchievements" :key="index">
               <v-col cols="1">
-                <v-img class="" src="/perk-icons1.png" title="Получена 22.12.1991"/>
+                <v-img class="" :src="a.icon" title="Получена 22.12.1991"/>
               </v-col>
               <v-col cols="7">
-                <p class="text-lg-h6">Работник года<br/>Получена за высокие показатели за год</p>
+                <p class="text-lg-h6">{{ a.title }}<br/>{{ a.description }}</p>
               </v-col>
               <v-col>
                 <p class="subtitle-1">Это достижение есть у 0.1% пользователей</p>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="1">
-                <v-img src="/perk-icon222s.png"/>
-              </v-col>
-              <v-col cols="7">
-                <p class="text-lg-h6">Очиститель<br/>Почистил 200 флуд таблиц</p>
-              </v-col>
-              <v-col>
-                <p class="subtitle-1">Это достижение есть у 5.1% пользователей</p>
               </v-col>
             </v-row>
           </v-card-text>
@@ -99,20 +88,7 @@
           <v-card-title>Все достижения</v-card-title>
           <v-card-text>
             <v-row>
-              <v-img src="/perk-icons1.png" @click="achievementsDialog = true"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
-              <v-img src="/perk-icons1.png"/>
+
             </v-row>
           </v-card-text>
         </v-card>
@@ -138,7 +114,24 @@
 
 <script>
 export default {
-  name: 'MainPage',
+  name: 'Profile',
+  mounted() {
+    this.$store.dispatch('getAchievements')
+  },
+  computed: {
+    myAchievements() {
+      let achievArray = []
+      if (this.$store.getters.user.achievements.length > 0) {
+        this.$store.getters.user.achievements.forEach((userAchiev) => {
+          achievArray.push(this.$store.getters.achievements.find((a) => {
+            return a.id === userAchiev.achievement_id
+          }))
+        })
+
+      }
+      return achievArray
+    }
+  },
   data: () => ({
     editAboutMe: false,
     achievementDialog: false,

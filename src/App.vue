@@ -65,7 +65,7 @@
             class="py-4 text-center white--text"
             cols="12"
         >
-          {{ new Date().getFullYear() }} — <strong>Beeline TP2</strong>
+          {{ new Date().getFullYear() }} — <strong>TP2team.ru</strong>
         </v-col>
       </v-row>
     </v-footer>

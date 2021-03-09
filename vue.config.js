@@ -15,6 +15,11 @@ module.exports = {
         target: 'http://91.240.86.247',
         ws: true,
         changeOrigin: true
+      },
+      '/img*': {
+        target: 'http://91.240.86.247',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

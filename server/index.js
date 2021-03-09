@@ -117,8 +117,12 @@ router.get('/api/me', function(req, res) {
   jwt.verify(token, config.secret, function(err, decoded) {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     mysqlDB.searchUserById(decoded.id).then((response) => {
-      delete response[0].password
-      res.json(response[0]);
+      mysqlDB.searchUserAchievements(decoded.id).then((answer) => {
+        delete response[0].password
+        response[0].achievements = answer
+        res.json(response[0]);
+      })
+
     });
   });
 });
