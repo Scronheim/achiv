@@ -48,21 +48,19 @@ export default new Vuex.Store({
         commit('setAchievements', response.data.results)
       })
     },
+    uploadAchievement(context, payload) {
+      return axios.post(`/api/uploadAchievement`, payload)
+    },
+    addAchievementsToUsers(context, payload) {
+      return axios.post(`/api/addAchievementToUsers`, payload)
+    },
     getUsers({commit}) {
       axios.get(`/api/users`).then((response) => {
         commit('setUsers', response.data.results)
       })
     },
-    aboutMe({state, commit}) {
-      return axios.get('/api/me', {headers: {'x-access-token': state.token}}).then((response) => {
-        let data = {
-          token: state.token,
-          user: response.data
-        }
-        commit('auth_success', data)
-      }).catch(() => {
-        localStorage.removeItem('token')
-      })
+    aboutMe({state}) {
+      return axios.get('/api/me', {headers: {'x-access-token': state.token}})
     },
     saveAboutMe(context, text) {
       let payload = {

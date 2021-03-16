@@ -28,6 +28,35 @@ router.route('/api/achievements')
     });
   })
 
+router.post('/api/uploadAchievement', (req, res) => {
+  let file = req.files.icon
+  file.mv(`/var/www/html/img/a/${file.name}`)
+  let data = {
+    title: req.body.title,
+    description: req.body.description,
+    icon: `/img/a/${file.name}`
+  }
+  mysqlDB.insertAchievement(data).then(() => {
+    res.send({success: true});
+  })
+})
+
+router.post('/api/addAchievementToUsers', (req, res) => {
+  let counter = 0
+  req.body.users.forEach((id, index, array) => {
+    let data = {
+      user_id: id,
+      achievement_id: req.body.achievement_id
+    }
+    mysqlDB.addAchievementToUser(data).then(() => {
+      counter++
+      if (counter === array.length) {
+        res.send({success: true})
+      }
+    })
+  })
+})
+
 router.route('/api/users')
   .get((req, res) => {
     mysqlDB.selectUsers().then((response) => {

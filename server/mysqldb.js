@@ -37,6 +37,14 @@ class DB {
     return this.db(USERS_TABLE).insert(data);
   }
 
+  insertAchievement(data) {
+    return this.db(ACHIEVEMENTS_TABLE).insert(data);
+  }
+
+  addAchievementToUser(data) {
+    return this.db(USER_ACHIEVEMENTS_TABLE).insert(data);
+  }
+
   searchUserByWinlogin(winlogin) {
     return this.db.select().from(USERS_TABLE).where('winlogin', '=', winlogin);
   }

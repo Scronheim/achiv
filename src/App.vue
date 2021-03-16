@@ -75,15 +75,6 @@
 <script>
 export default {
   name: 'App',
-  created() {
-    if (this.$store.state.token !== '') {
-      this.$store.dispatch('aboutMe').then(() => {
-        if (this.$store.getters.user.theme === 'dark') {
-          this.$vuetify.theme.dark = true
-        }
-      })
-    }
-  },
   computed: {
     isAuth() {
       return this.$store.getters.isLoggedIn

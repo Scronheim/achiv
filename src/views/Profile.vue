@@ -117,17 +117,24 @@ export default {
   name: 'Profile',
   mounted() {
     this.$store.dispatch('getAchievements')
+    this.$store.dispatch('aboutMe').then((response) => {
+      if (response.data.theme === 'dark') {
+        this.$vuetify.theme.dark = true
+      }
+      this.$store.commit('setUser', response.data)
+    }).catch(() => {
+      localStorage.removeItem('token')
+    })
   },
   computed: {
     myAchievements() {
       let achievArray = []
-      if (this.$store.getters.user.achievements.length > 0) {
+      if (this.$store.getters.user.achievements) {
         this.$store.getters.user.achievements.forEach((userAchiev) => {
           achievArray.push(this.$store.getters.achievements.find((a) => {
             return a.id === userAchiev.achievement_id
           }))
         })
-
       }
       return achievArray
     }
