@@ -37,6 +37,14 @@ class DB {
     return this.db(USERS_TABLE).insert(data);
   }
 
+  updateUser(data) {
+    return this.db(USERS_TABLE).where('id', '=', data.id).update(data)
+  }
+
+  deleteUser(id) {
+    return this.db(USERS_TABLE).where('id', '=', id).delete()
+  }
+
   insertAchievement(data) {
     return this.db(ACHIEVEMENTS_TABLE).insert(data);
   }

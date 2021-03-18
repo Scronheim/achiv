@@ -72,6 +72,17 @@ router.route('/api/user')
       res.json({results: error})
     })
   })
+  .put((req, res) => {
+    mysqlDB.updateUser(req.body).then(() => {
+      res.json({success: true})
+    })
+  })
+
+router.delete('/api/user/:id', (req, res) => {
+  mysqlDB.deleteUser(req.params.id).then(() => {
+    res.json({success: true})
+  })
+})
 
 router.route('/api/setUserPassword')
   .patch((req, res) => {

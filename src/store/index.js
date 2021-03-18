@@ -43,6 +43,12 @@ export default new Vuex.Store({
     addUser(context, payload) {
       return axios.post(`/api/user`, payload)
     },
+    saveUser(context, payload) {
+      return axios.put(`/api/user`, payload)
+    },
+    deleteUser(context, id) {
+      return axios.delete(`/api/user/${id}`)
+    },
     getAchievements({commit}) {
       axios.get(`/api/achievements`).then((response) => {
         commit('setAchievements', response.data.results)

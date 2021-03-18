@@ -107,34 +107,48 @@
           <v-tab-item>
             <v-card flat>
               <v-card-text>
-                <v-row>
-                  <v-col cols="2">
-                    <v-text-field label="Winlogin" v-model="addedUser.winlogin"/>
-                  </v-col>
-                  <v-col cols="2">
-                    <v-text-field label="ФИО" v-model="addedUser.full_name"/>
-                  </v-col>
-                  <v-col cols="1">
-                    <v-select label="Номер группы" v-model="addedUser.group_number" :items="groupNumbers"/>
-                  </v-col>
-                  <v-col cols="2">
-                    <v-text-field label="Должность" v-model="addedUser.position"/>
-                  </v-col>
-                  <v-col cols="2">
-                    <v-text-field label="Дата приёма в ТП2" v-model="addedUser.invite_date" type="date"/>
-                  </v-col>
-                  <v-col cols="2">
-                    <v-text-field label="Дата рождения" v-model="addedUser.birthdate" type="date"/>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col align="center">
-                    <v-btn color="success" @click="addUser">Добавить</v-btn>
-                  </v-col>
-                </v-row>
+                <v-card>
+                  <v-card-title>Добавление пользователя</v-card-title>
+                  <v-card-text>
+                    <UserForm :user="addedUser"/>
+                    <v-row>
+                      <v-col align="center">
+                        <v-btn color="info" @click="addUser">Добавить</v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
                 <v-row>
                   <v-col>
-                    <v-data-table :items="$store.getters.users" :headers="usersHeaders"/>
+                    <v-card>
+                      <v-card-title>Управление пользователями
+                        <v-spacer/>
+                        <v-text-field v-model="userFilter" append-icon="mdi-magnify" label="Поиск" flat hide-details solo-inverted clearable/>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-data-table :items="$store.getters.users" :headers="usersHeaders" @contextmenu:row="showMenu" :search="userFilter"/>
+                        <v-menu v-model="menuVisible" :position-x="menuPositionX" :position-y="menuPositionY" absolute offset-y>
+                          <v-list dense>
+                            <v-list-item link @click="editUserDialog = true">
+                              <v-list-item-icon>
+                                <v-icon>mdi-pencil</v-icon>
+                              </v-list-item-icon>
+                              <v-list-item-content>
+                                <v-list-item-title>Редактировать</v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                            <v-list-item link @click="deleteUser">
+                              <v-list-item-icon>
+                                <v-icon color="error">mdi-delete</v-icon>
+                              </v-list-item-icon>
+                              <v-list-item-content>
+                                <v-list-item-title>Удалить</v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-list>
+                        </v-menu>
+                      </v-card-text>
+                    </v-card>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -143,18 +157,38 @@
         </v-tabs>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="editUserDialog" width="90%">
+      <v-card>
+        <v-card-title>Редактирование польователя {{ selectedUser.full_name }}</v-card-title>
+        <v-card-text>
+          <UserForm :user="selectedUser"/>
+          <v-row>
+            <v-col align="center">
+              <v-btn color="info" @click="saveUser">Сохранить</v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import UserForm from "@/components/UserForm";
 export default {
   name: 'Admin',
+  components: {UserForm},
   mounted() {
     this.$store.dispatch('getUsers')
     this.$store.dispatch('getAchievements')
   },
   data: () => ({
-    groupNumbers: [1,2,3,4,5,6,7,8],
+    menuVisible: false,
+    editUserDialog: false,
+    menuPositionX: null,
+    menuPositionY: null,
+    userFilter: null,
     experiences: ['0-1', '1-3', '3-6', '6-12', '12+'],
     usersHeaders: [
       {text: 'Winlogin', align: 'start', sortable: true, value: 'winlogin'},
@@ -174,6 +208,7 @@ export default {
       invite_date: null,
       is_admin: false
     },
+    selectedUser: {},
     addedAchievement: {
       title: null,
       description: null,
@@ -206,6 +241,24 @@ export default {
           this.$toast.error(`Польователь ${this.addedUser.winlogin} уже зарегистрирован`)
         }
       })
+    },
+    saveUser() {
+      this.$store.dispatch('saveUser', this.selectedUser).then((response) => {
+        if (response.data.success) {
+          this.$toast.success(`Пользователь ${this.selectedUser.full_name} сохранён`)
+          this.$store.dispatch('getUsers')
+        }
+      })
+    },
+    deleteUser() {
+      if (confirm(`Вы действительно хотите удалить пользователя ${this.selectedUser.full_name}?`)) {
+        this.$store.dispatch('deleteUser', this.selectedUser.id).then((response) => {
+          if (response.data.success) {
+            this.$store.dispatch('getUsers')
+            this.$toast.success(`Пользователь ${this.selectedUser.full_name} удалён`)
+          }
+        })
+      }
     },
     uploadAchievement() {
       let formData = new FormData()
@@ -242,6 +295,17 @@ export default {
         return id === item.id
       })
       this.selectedUsers.splice(index, 1)
+    },
+    showMenu(e, row) {
+      e.preventDefault()
+      this.selectedUser = {}
+      Object.assign(this.selectedUser, row.item)
+      this.menuVisible = false
+      this.menuPositionX = e.clientX
+      this.menuPositionY = e.clientY
+      this.$nextTick(() => {
+        this.menuVisible = true
+      })
     }
   }
 }
