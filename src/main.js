@@ -5,11 +5,13 @@ import vuetify from './plugins/vuetify';
 import router from './router'
 import Toast from 'vue-toastification';
 import moment from 'moment'
+import _ from 'lodash'
 import 'vue-toastification/dist/index.css';
 
 Vue.config.productionTip = false
 
 Vue.prototype.$moment = moment
+Vue.prototype.$_ = _
 
 Vue.use(Toast, {
   transition: "Vue-Toastification__bounce",

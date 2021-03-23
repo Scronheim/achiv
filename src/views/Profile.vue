@@ -54,13 +54,13 @@
           <v-card-text>
             <v-row v-for="(a, index) in myAchievements" :key="index">
               <v-col cols="1">
-                <v-img class="" :src="a.icon" title="Получена 22.12.1991"/>
+                <v-img :src="a.icon" title="Получена 22.12.1991"/>
               </v-col>
               <v-col cols="7">
                 <p class="text-lg-h6">{{ a.title }}<br/>{{ a.description }}</p>
               </v-col>
               <v-col>
-                <p class="subtitle-1">Это достижение есть у 0.1% пользователей</p>
+                <p class="subtitle-1">Это достижение есть у {{ percentage(a.id) }}% пользователей</p>
               </v-col>
             </v-row>
           </v-card-text>
@@ -84,14 +84,37 @@
             </v-row>
           </v-card-text>
         </v-card>
-        <v-card class="mt-3">
-          <v-card-title>Все достижения</v-card-title>
-          <v-card-text>
-            <v-row>
 
-            </v-row>
-          </v-card-text>
-        </v-card>
+        <v-expansion-panels class="pt-4">
+          <v-expansion-panel>
+            <v-expansion-panel-header>Мои коллеги</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-list rounded>
+                <v-row v-for="(chunk, index) in chunkedColleagues" :key="index">
+                  <v-col v-for="(c, idx) in chunk" :key="idx" @click="openUserProfile(c.winlogin)">
+                    <v-list-item link>
+                      <v-avatar left color="indigo" size="50">
+                        <v-img :src="c.avatar" v-if="c.avatar"/>
+                        <span v-else class="headline">{{ c.full_name.substring(0,1) }}</span>
+                      </v-avatar>
+                      {{ c.full_name.split(' ')[0] }} {{ c.full_name.split(' ')[1] }}
+                    </v-list-item>
+                  </v-col>
+                </v-row>
+              </v-list>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel>
+            <v-expansion-panel-header>Все достижения</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-row v-for="(chunk, index) in allChunkedAchievements" :key="index">
+                <v-col cols="3" v-for="(a, idx) in chunk" :key="idx">
+                  <v-img :src="a.icon" :title="a.description"/>
+                </v-col>
+              </v-row>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
     </v-row>
     <v-dialog v-model="achievementDialog" width="30%">
@@ -116,8 +139,8 @@
 export default {
   name: 'Profile',
   mounted() {
-    this.$store.dispatch('getAchievements')
-    this.$store.dispatch('aboutMe').then((response) => {
+    this.$store.dispatch('getUsersAchievements')
+    this.$store.dispatch('me').then((response) => {
       if (response.data.theme === 'dark') {
         this.$vuetify.theme.dark = true
       }
@@ -137,6 +160,12 @@ export default {
         })
       }
       return achievArray
+    },
+    allChunkedAchievements() {
+      return this.$_.chunk(this.$store.getters.achievements, 4)
+    },
+    chunkedColleagues() {
+      return this.$_.chunk(this.$store.getters.user.colleagues, 2)
     }
   },
   data: () => ({
@@ -146,6 +175,12 @@ export default {
     avatarFile: null
   }),
   methods: {
+    percentage(achievementId) {
+      let userCount = this.$store.getters.userAchievements.filter((x) => {
+        return x.achievement_id === achievementId
+      }).length
+      return (userCount/this.$store.getters.users.length*100).toFixed(2)
+    },
     uploadAvatar() {
       let formData = new FormData()
       formData.append('avatar', this.avatarFile)
@@ -153,7 +188,9 @@ export default {
       this.$store.dispatch('uploadAvatar', formData).then((response) => {
         if (response.data.success) {
           this.$toast.success('Аватарка успешно загружена')
-          this.$store.dispatch('aboutMe')
+          this.$store.dispatch('me').then((response) => {
+            this.$store.commit('setUser', response.data)
+          })
         }
       })
     },
@@ -166,9 +203,14 @@ export default {
         if (response.data.results === 1) {
           this.$toast.success('Успешно сохранено')
           this.editAboutMe = false
-          this.$store.dispatch('aboutMe')
+          this.$store.dispatch('me').then((response) => {
+            this.$store.commit('setUser', response.data)
+          })
         }
       })
+    },
+    openUserProfile(winlogin) {
+      this.$router.push(`/user/${winlogin}`)
     }
   }
 }

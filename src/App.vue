@@ -75,6 +75,21 @@
 <script>
 export default {
   name: 'App',
+  mounted() {
+    this.$store.dispatch('getAchievements')
+    this.$store.dispatch('getUsersAchievements')
+    this.$store.dispatch('getUsers')
+    if (this.$store.getters.isLoggedIn) {
+      this.$store.dispatch('me').then((response) => {
+        if (response.data.theme === 'dark') {
+          this.$vuetify.theme.dark = true
+        }
+        this.$store.commit('setUser', response.data)
+      }).catch(() => {
+        localStorage.removeItem('token')
+      })
+    }
+  },
   computed: {
     isAuth() {
       return this.$store.getters.isLoggedIn

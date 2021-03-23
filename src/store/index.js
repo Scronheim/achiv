@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     achievements: [],
+    userAchievements: [],
     user: {},
     users: [],
     status: '',
@@ -16,24 +17,27 @@ export default new Vuex.Store({
     setAchievements(state, payload) {
       state.achievements = payload
     },
+    setUserAchievements(state, payload) {
+      state.userAchievements = payload
+    },
     setUsers(state, payload) {
       state.users = payload
     },
     setUser(state, payload) {
       state.user = payload
     },
-    auth_request(state){
+    auth_request(state) {
       state.status = 'loading'
     },
-    auth_success(state, data){
+    auth_success(state, data) {
       state.status = 'success'
       state.token = data.token
       state.user = data.user
     },
-    auth_error(state){
+    auth_error(state) {
       state.status = 'error'
     },
-    logout(state){
+    logout(state) {
       state.status = ''
       state.token = ''
       state.user = {}
@@ -54,6 +58,11 @@ export default new Vuex.Store({
         commit('setAchievements', response.data.results)
       })
     },
+    getUsersAchievements({commit}) {
+      axios.get(`/api/usersAchievements`).then((response) => {
+        commit('setUserAchievements', response.data.results)
+      })
+    },
     uploadAchievement(context, payload) {
       return axios.post(`/api/uploadAchievement`, payload)
     },
@@ -61,16 +70,16 @@ export default new Vuex.Store({
       return axios.post(`/api/addAchievementToUsers`, payload)
     },
     getUsers({commit}) {
-      axios.get(`/api/users`).then((response) => {
+      return axios.get(`/api/users`).then((response) => {
         commit('setUsers', response.data.results)
       })
     },
-    aboutMe({state}) {
+    me({state}) {
       return axios.get('/api/me', {headers: {'x-access-token': state.token}})
     },
     saveAboutMe(context, text) {
       let payload = {
-        username: context.getters.user.username,
+        winlogin: context.getters.user.winlogin,
         about: text
       }
       return axios.patch('/api/aboutMe', payload)
@@ -146,6 +155,7 @@ export default new Vuex.Store({
   },
   getters: {
     achievements: state => state.achievements,
+    userAchievements: state => state.userAchievements,
     user: state => state.user,
     users: state => state.users,
     isLoggedIn: state => !!state.token,

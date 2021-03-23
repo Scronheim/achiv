@@ -28,6 +28,20 @@ router.route('/api/achievements')
     });
   })
 
+router.route('/api/usersAchievements')
+  .get((req, res) => {
+    mysqlDB.selectUsersAchievements().then((response) => {
+      res.json({results: response})
+    });
+  })
+
+router.route('/api/colleagues')
+  .get((req, res) => {
+    mysqlDB.selectColleagues(req.query.group).then((response) => {
+      res.json({results: response})
+    });
+  })
+
 router.post('/api/uploadAchievement', (req, res) => {
   let file = req.files.icon
   file.mv(`/var/www/html/img/a/${file.name}`)
@@ -59,9 +73,16 @@ router.post('/api/addAchievementToUsers', (req, res) => {
 
 router.route('/api/users')
   .get((req, res) => {
-    mysqlDB.selectUsers().then((response) => {
-      res.json({results: response})
-    });
+    mysqlDB.selectUsers().then((responses) => {
+      let users = responses[0]
+      let usersAchievements = responses[1]
+      users.forEach((user) => {
+        user.achievements = usersAchievements.filter((x) => {
+          return x.user_id === user.id
+        })
+      })
+      res.json({results: users})
+    })
   })
 
 router.route('/api/user')
@@ -157,9 +178,11 @@ router.get('/api/me', function(req, res) {
   jwt.verify(token, config.secret, function(err, decoded) {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     mysqlDB.searchUserById(decoded.id).then((response) => {
-      mysqlDB.searchUserAchievements(decoded.id).then((answer) => {
+      Promise.all([mysqlDB.searchUserAchievements(decoded.id), mysqlDB.selectColleagues(response[0].group_number)])
+      .then((answers) => {
         delete response[0].password
-        response[0].achievements = answer
+        response[0].achievements = answers[0]
+        response[0].colleagues = answers[1]
         res.json(response[0]);
       })
 

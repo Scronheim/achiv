@@ -1,6 +1,6 @@
 "use strict"
-const ACHIEVEMENTS_TABLE = 'achievements';
-const USER_ACHIEVEMENTS_TABLE = 'users_achievements';
+const ACHIEVEMENTS_TABLE = 'achievements'
+const USER_ACHIEVEMENTS_TABLE = 'users_achievements'
 const USERS_TABLE = 'users'
 
 class DB {
@@ -30,11 +30,11 @@ class DB {
   }
 
   selectUsers() {
-    return this.db.select().from(USERS_TABLE).orderBy('id', 'asc')
+    return Promise.all([this.db.select().from(USERS_TABLE).orderBy('id', 'asc'), this.selectUsersAchievements()])
   }
 
   insertUser(data) {
-    return this.db(USERS_TABLE).insert(data);
+    return this.db(USERS_TABLE).insert(data)
   }
 
   updateUser(data) {
@@ -45,20 +45,28 @@ class DB {
     return this.db(USERS_TABLE).where('id', '=', id).delete()
   }
 
+  selectColleagues(groupNumber) {
+    return this.db.select().from(USERS_TABLE).where('group_number', '=', groupNumber)
+  }
+
   insertAchievement(data) {
-    return this.db(ACHIEVEMENTS_TABLE).insert(data);
+    return this.db(ACHIEVEMENTS_TABLE).insert(data)
+  }
+
+  selectUsersAchievements() {
+    return this.db().select().from(USER_ACHIEVEMENTS_TABLE).orderBy('id', 'asc')
   }
 
   addAchievementToUser(data) {
-    return this.db(USER_ACHIEVEMENTS_TABLE).insert(data);
+    return this.db(USER_ACHIEVEMENTS_TABLE).insert(data)
   }
 
   searchUserByWinlogin(winlogin) {
-    return this.db.select().from(USERS_TABLE).where('winlogin', '=', winlogin);
+    return this.db.select().from(USERS_TABLE).where('winlogin', '=', winlogin)
   }
 
   searchUserById(id) {
-    return this.db.select().from(USERS_TABLE).where('id', '=', id);
+    return this.db.select().from(USERS_TABLE).where('id', '=', id)
   }
 
   searchUserAchievements(id) {
@@ -66,19 +74,19 @@ class DB {
   }
 
   changeUserPassword(data) {
-    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('password', data.password);
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('password', data.password)
   }
 
   updateAboutMe(data) {
-    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('about', data.about);
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('about', data.about)
   }
 
   updateTheme(data) {
-    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('theme', data.theme);
+    return this.db(USERS_TABLE).where('winlogin', '=', data.winlogin).update('theme', data.theme)
   }
 
   updateAvatar(winlogin, avatarPath) {
-    return this.db(USERS_TABLE).where('winlogin', '=', winlogin).update('avatar', avatarPath);
+    return this.db(USERS_TABLE).where('winlogin', '=', winlogin).update('avatar', avatarPath)
   }
 }
 

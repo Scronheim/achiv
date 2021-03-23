@@ -38,6 +38,14 @@ const routes = [
     component: () => import('../views/Profile')
   },
   {
+    path: '/user/:winlogin',
+    name: 'User profile',
+    meta: {
+      middleware: [auth]
+    },
+    component: () => import('../views/UserProfile')
+  },
+  {
     path: '/admin',
     name: 'Admin page',
     meta: {
