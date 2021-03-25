@@ -94,6 +94,7 @@ router.route('/api/user')
     })
   })
   .put((req, res) => {
+    delete req.body.achievements
     mysqlDB.updateUser(req.body).then(() => {
       res.json({success: true})
     })
