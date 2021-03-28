@@ -85,9 +85,61 @@
           </v-card-text>
         </v-card>
 
+        <v-card class="mt-4">
+          <v-card-title>Социальные сети
+            <v-spacer/>
+            <v-btn icon @click="editSocial"><v-icon>mdi-pencil</v-icon></v-btn>
+          </v-card-title>
+          <v-card-text v-if="!showEditSocialInputs">
+            <v-row>
+              <v-col cols="2">
+                <v-btn color="blue" target="_blank" v-if="$store.getters.user.vk" icon :href="$store.getters.user.vk">
+                  <v-icon size="45">mdi-vk</v-icon>
+                </v-btn>
+              </v-col>
+              <v-col cols="2">
+                <v-btn color="pink darken-1" target="_blank" v-if="$store.getters.user.instagram" icon :href="$store.getters.user.instagram">
+                  <v-icon size="45">mdi-instagram</v-icon>
+                </v-btn>
+              </v-col>
+              <v-col cols="2">
+                <v-btn target="_blank" v-if="$store.getters.user.telegram" icon :href="$store.getters.user.telegram">
+                  <v-icon size="45">mdi-telegram</v-icon>
+                </v-btn>
+              </v-col>
+              <v-col cols="2">
+                <v-btn target="_blank" v-if="$store.getters.user.facebook" icon :href="$store.getters.user.facebook">
+                  <v-icon size="45">mdi-facebook</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+
+          </v-card-text>
+          <v-card-text v-else>
+            <v-row>
+              <v-col>
+                <v-text-field prepend-icon="mdi-vk" label="VK" v-model="user.vk"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field prepend-icon="mdi-instagram" label="Instagram" v-model="user.instagram"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field prepend-icon="mdi-telegram" label="Telegram" v-model="user.telegram"/>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
         <v-expansion-panels class="pt-4">
           <v-expansion-panel>
-            <v-expansion-panel-header>Мои коллеги</v-expansion-panel-header>
+            <v-expansion-panel-header>Коллеги
+              <v-spacer/>
+              <v-btn text @click="toAllUsers">Все</v-btn>
+            </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-list rounded>
                 <v-row v-for="(chunk, index) in chunkedColleagues" :key="index">
@@ -140,11 +192,13 @@ export default {
   name: 'Profile',
   mounted() {
     this.$store.dispatch('getUsersAchievements')
+    this.$store.dispatch('getShadowAchievements')
     this.$store.dispatch('me').then((response) => {
       if (response.data.theme === 'dark') {
         this.$vuetify.theme.dark = true
       }
       this.$store.commit('setUser', response.data)
+      Object.assign(this.user, this.$store.state.user)
     }).catch(() => {
       localStorage.removeItem('token')
     })
@@ -162,17 +216,19 @@ export default {
       return achievArray
     },
     allChunkedAchievements() {
-      return this.$_.chunk(this.$store.getters.achievements, 4)
+      return this.$_.chunk(this.$store.getters.shadowAchievements, 4)
     },
     chunkedColleagues() {
       return this.$_.chunk(this.$store.getters.user.colleagues, 2)
     }
   },
   data: () => ({
+    user: {},
     editAboutMe: false,
     achievementDialog: false,
     aboutText: '',
-    avatarFile: null
+    avatarFile: null,
+    showEditSocialInputs: false,
   }),
   methods: {
     percentage(achievementId) {
@@ -198,6 +254,14 @@ export default {
       this.aboutText = this.$store.getters.user.about
       this.editAboutMe = !this.editAboutMe
     },
+    saveSocial() {
+      this.$store.dispatch('saveUser', this.user).then((response) => {
+        if (response.data.success) {
+          this.$toast.success(`Соц. сети сохранены`)
+          this.$store.dispatch('getUsers')
+        }
+      })
+    },
     saveAboutMe() {
       this.$store.dispatch('saveAboutMe', this.aboutText).then((response) => {
         if (response.data.results === 1) {
@@ -211,6 +275,13 @@ export default {
     },
     openUserProfile(winlogin) {
       this.$router.push(`/user/${winlogin}`)
+    },
+    editSocial() {
+      this.showEditSocialInputs = !this.showEditSocialInputs
+    },
+    toAllUsers(event) {
+      event.preventDefault()
+      this.$router.push('/users')
     }
   }
 }

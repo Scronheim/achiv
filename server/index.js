@@ -28,6 +28,13 @@ router.route('/api/achievements')
     });
   })
 
+router.route('/api/shadowAchievements')
+  .get((req, res) => {
+    mysqlDB.selectShadowAchievements().then((response) => {
+      res.json({results: response})
+    });
+  })
+
 router.route('/api/usersAchievements')
   .get((req, res) => {
     mysqlDB.selectUsersAchievements().then((response) => {
@@ -41,6 +48,12 @@ router.route('/api/colleagues')
       res.json({results: response})
     });
   })
+
+router.delete('/api/deleteUserAchievement/:id', (req, res) => {
+  mysqlDB.deleteUserAchievement(req.params.id).then((response) => {
+    res.json({success: true})
+  })
+})
 
 router.post('/api/uploadAchievement', (req, res) => {
   let file = req.files.icon
@@ -77,6 +90,7 @@ router.route('/api/users')
       let users = responses[0]
       let usersAchievements = responses[1]
       users.forEach((user) => {
+        user.colleagues = []
         user.achievements = usersAchievements.filter((x) => {
           return x.user_id === user.id
         })
@@ -95,6 +109,7 @@ router.route('/api/user')
   })
   .put((req, res) => {
     delete req.body.achievements
+    delete req.body.colleagues
     mysqlDB.updateUser(req.body).then(() => {
       res.json({success: true})
     })

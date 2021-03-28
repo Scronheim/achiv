@@ -52,6 +52,14 @@ const routes = [
       middleware: [auth, admin]
     },
     component: () => import('../views/Admin')
+  },
+  {
+    path: '/users',
+    name: 'All users',
+    meta: {
+      middleware: [auth]
+    },
+    component: () => import('../views/Users')
   }
 ]
 

@@ -16,6 +16,9 @@
                   prepend-icon="mdi-microsoft-windows"
                   type="text"
               />
+              <v-alert dense type="error">
+                <h3>Запрещено использовать пароль от рабочей учётной записи!</h3>
+              </v-alert>
               <v-text-field
                   v-model="user.password"
                   id="password"

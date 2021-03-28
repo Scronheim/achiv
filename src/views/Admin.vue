@@ -126,12 +126,21 @@
                         <v-text-field v-model="userFilter" append-icon="mdi-magnify" label="Поиск" flat hide-details solo-inverted clearable/>
                       </v-card-title>
                       <v-card-text>
-                        <v-data-table :items="$store.getters.users" :headers="usersHeaders" @contextmenu:row="showMenu" :search="userFilter"/>
+                        <v-data-table :items="$store.getters.users" :headers="usersHeaders" @contextmenu:row="showMenu" :search="userFilter">
+                          <template v-slot:item.actions="{ item }">
+                            <v-btn color="info" icon @click="editUserDialog = true">
+                              <v-icon>mdi-pencil</v-icon>
+                            </v-btn>
+                            <v-btn color="error" icon @click="deleteUser(item)">
+                              <v-icon>mdi-delete</v-icon>
+                            </v-btn>
+                          </template>
+                        </v-data-table>
                         <v-menu v-model="menuVisible" :position-x="menuPositionX" :position-y="menuPositionY" absolute offset-y>
                           <v-list dense>
                             <v-list-item link @click="editUserDialog = true">
                               <v-list-item-icon>
-                                <v-icon>mdi-pencil</v-icon>
+                                <v-icon color="info">mdi-pencil</v-icon>
                               </v-list-item-icon>
                               <v-list-item-content>
                                 <v-list-item-title>Редактировать</v-list-item-title>
@@ -197,6 +206,7 @@ export default {
       {text: 'Номер группы', align: 'start', sortable: true, value: 'group_number'},
       {text: 'Стаж', align: 'start', sortable: true, value: 'experience'},
       {text: 'Дата приёма в ТП2', align: 'start', sortable: true, value: 'invite_date'},
+      {text: 'Действия', align: 'start', sortable: false, value: 'actions'},
     ],
     addedUser: {
       winlogin: null,
@@ -250,7 +260,8 @@ export default {
         }
       })
     },
-    deleteUser() {
+    deleteUser(user) {
+      Object.assign(this.selectedUser, user)
       if (confirm(`Вы действительно хотите удалить пользователя ${this.selectedUser.full_name}?`)) {
         this.$store.dispatch('deleteUser', this.selectedUser.id).then((response) => {
           if (response.data.success) {

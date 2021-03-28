@@ -26,11 +26,15 @@ class DB {
   }
 
   selectAchievements() {
-    return this.db.select().from(ACHIEVEMENTS_TABLE).orderBy('id', 'asc')
+    return this.db(ACHIEVEMENTS_TABLE).select().orderBy('id', 'asc')
+  }
+
+  selectShadowAchievements() {
+    return this.db(ACHIEVEMENTS_TABLE).select().where('shadow', '=', true)
   }
 
   selectUsers() {
-    return Promise.all([this.db.select().from(USERS_TABLE).orderBy('id', 'asc'), this.selectUsersAchievements()])
+    return Promise.all([this.db(USERS_TABLE).select().orderBy('id', 'asc'), this.selectUsersAchievements()])
   }
 
   insertUser(data) {
@@ -45,8 +49,12 @@ class DB {
     return this.db(USERS_TABLE).where('id', '=', id).delete()
   }
 
+  deleteUserAchievement(id) {
+    return this.db(USER_ACHIEVEMENTS_TABLE).where('id', '=', id).delete()
+  }
+
   selectColleagues(groupNumber) {
-    return this.db.select().from(USERS_TABLE).where('group_number', '=', groupNumber)
+    return this.db(USERS_TABLE).select().where('group_number', '=', groupNumber)
   }
 
   insertAchievement(data) {
@@ -54,7 +62,7 @@ class DB {
   }
 
   selectUsersAchievements() {
-    return this.db().select().from(USER_ACHIEVEMENTS_TABLE).orderBy('id', 'asc')
+    return this.db(USER_ACHIEVEMENTS_TABLE).select().orderBy('id', 'asc')
   }
 
   addAchievementToUser(data) {
@@ -62,15 +70,15 @@ class DB {
   }
 
   searchUserByWinlogin(winlogin) {
-    return this.db.select().from(USERS_TABLE).where('winlogin', '=', winlogin)
+    return this.db(USERS_TABLE).select().where('winlogin', '=', winlogin)
   }
 
   searchUserById(id) {
-    return this.db.select().from(USERS_TABLE).where('id', '=', id)
+    return this.db(USERS_TABLE).select().where('id', '=', id)
   }
 
   searchUserAchievements(id) {
-    return this.db.select().from(USER_ACHIEVEMENTS_TABLE).where('user_id', '=', id)
+    return this.db(USER_ACHIEVEMENTS_TABLE).select().where('user_id', '=', id)
   }
 
   changeUserPassword(data) {

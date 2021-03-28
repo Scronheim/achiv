@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     achievements: [],
+    shadowAchievements: [],
     userAchievements: [],
     user: {},
     users: [],
@@ -16,6 +17,9 @@ export default new Vuex.Store({
   mutations: {
     setAchievements(state, payload) {
       state.achievements = payload
+    },
+    setShadowAchievements(state, payload) {
+      state.shadowAchievements = payload
     },
     setUserAchievements(state, payload) {
       state.userAchievements = payload
@@ -58,6 +62,11 @@ export default new Vuex.Store({
         commit('setAchievements', response.data.results)
       })
     },
+    getShadowAchievements({commit}) {
+      axios.get(`/api/shadowAchievements`).then((response) => {
+        commit('setShadowAchievements', response.data.results)
+      })
+    },
     getUsersAchievements({commit}) {
       axios.get(`/api/usersAchievements`).then((response) => {
         commit('setUserAchievements', response.data.results)
@@ -69,10 +78,16 @@ export default new Vuex.Store({
     addAchievementsToUsers(context, payload) {
       return axios.post(`/api/addAchievementToUsers`, payload)
     },
+    deleteUserAchievement(context, id) {
+      return axios.delete(`/api/deleteUserAchievement/${id}`)
+    },
     getUsers({commit}) {
       return axios.get(`/api/users`).then((response) => {
         commit('setUsers', response.data.results)
       })
+    },
+    getColleagues(context, group) {
+      return axios.get(`/api/colleagues?group=${group}`)
     },
     me({state}) {
       return axios.get('/api/me', {headers: {'x-access-token': state.token}})
@@ -155,6 +170,7 @@ export default new Vuex.Store({
   },
   getters: {
     achievements: state => state.achievements,
+    shadowAchievements: state => state.shadowAchievements,
     userAchievements: state => state.userAchievements,
     user: state => state.user,
     users: state => state.users,

@@ -1,11 +1,5 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col>
-        Main page
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-img src="/img/background.png"/>
 </template>
 
 <script>
