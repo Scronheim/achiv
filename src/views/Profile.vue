@@ -161,6 +161,7 @@
             <v-expansion-panel-content>
               <v-row v-for="(chunk, index) in allChunkedAchievements" :key="index">
                 <v-col cols="3" v-for="(a, idx) in chunk" :key="idx">
+                  {{ a }}
                   <v-img :src="a.icon" :title="a.description"/>
                 </v-col>
               </v-row>
