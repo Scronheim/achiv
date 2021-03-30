@@ -6,7 +6,9 @@
           <v-card-text>
             <v-row>
               <v-col cols="2">
-                <v-img class="thumbnail" :src="user.avatar" lazy-src="https://i.pinimg.com/originals/ff/a0/9a/ffa09aec412db3f54deadf1b3781de2a.png"
+                <v-img v-if="user.avatar" class="thumbnail" :src="user.avatar" lazy-src="https://i.pinimg.com/originals/ff/a0/9a/ffa09aec412db3f54deadf1b3781de2a.png"
+                       width="150" height="150"/>
+                <v-img v-else class="thumbnail" src="https://i.pinimg.com/originals/ff/a0/9a/ffa09aec412db3f54deadf1b3781de2a.png"
                        width="150" height="150"/>
               </v-col>
               <v-col>
@@ -146,6 +148,7 @@ export default {
   mounted() {
     this.loadUserInfo()
     this.$store.dispatch('getAchievements')
+    this.$store.dispatch('getShadowAchievements')
   },
   computed: {
     myAchievements() {
