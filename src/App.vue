@@ -58,8 +58,8 @@
 export default {
   name: 'App',
   mounted() {
-    this.$store.dispatch('getAchievements')
-    this.$store.dispatch('getUsersAchievements')
+    // this.$store.dispatch('getAchievements')
+    // this.$store.dispatch('getUsersAchievements')
     this.$store.dispatch('getUsers')
     if (this.$store.getters.isLoggedIn) {
       this.$store.dispatch('me').then((response) => {

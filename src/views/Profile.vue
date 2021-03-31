@@ -42,7 +42,7 @@
                     background-color="grey darken-1"
                     color="yellow lighten-1"
                     height="10"
-                    value="20"
+                    :value="experience"
                     striped
                 />
               </v-col>
@@ -54,7 +54,7 @@
           <v-card-text>
             <v-row v-for="(a, index) in myAchievements" :key="index">
               <v-col cols="1">
-                <v-img :src="a.icon" title="Получена 22.12.1991"/>
+                <v-img :src="a.icon" :title="`${a.title}\n${a.description}`"/>
               </v-col>
               <v-col cols="7">
                 <p class="text-lg-h6">{{ a.title }}<br/>{{ a.description }}</p>
@@ -131,6 +131,11 @@
                 <v-text-field prepend-icon="mdi-telegram" label="Telegram" v-model="user.telegram"/>
               </v-col>
             </v-row>
+            <v-row>
+              <v-col>
+                <v-btn color="success" @click="saveSocial">Сохранить</v-btn>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
 
@@ -161,7 +166,7 @@
             <v-expansion-panel-content>
               <v-row v-for="(chunk, index) in allChunkedAchievements" :key="index">
                 <v-col cols="3" v-for="(a, idx) in chunk" :key="idx">
-                  <v-img :src="a.icon" :title="a.description"/>
+                  <v-img :src="a.icon" :title="`${a.title}\n${a.description}`"/>
                 </v-col>
               </v-row>
             </v-expansion-panel-content>
@@ -191,6 +196,7 @@
 export default {
   name: 'Profile',
   mounted() {
+    this.$store.dispatch('getAchievements')
     this.$store.dispatch('getUsersAchievements')
     this.$store.dispatch('getShadowAchievements')
     this.$store.dispatch('me').then((response) => {
@@ -206,7 +212,7 @@ export default {
   computed: {
     myAchievements() {
       let achievArray = []
-      if (this.$store.getters.user.achievements) {
+      if (this.$store.getters.user.achievements.length > 0) {
         this.$store.getters.user.achievements.forEach((userAchiev) => {
           achievArray.push(this.$store.getters.achievements.find((a) => {
             return a.id === userAchiev.achievement_id
@@ -220,6 +226,20 @@ export default {
     },
     chunkedColleagues() {
       return this.$_.chunk(this.$store.getters.user.colleagues, 2)
+    },
+    experience() {
+      let experience = this.$store.getters.user.experience
+      if (experience === '0-1') {
+        return 20
+      } else if (experience === '1-3') {
+        return 40
+      } else if (experience === '3-6') {
+        return 60
+      } else if (experience === '6-12') {
+        return 80
+      } else {
+        return 100
+      }
     }
   },
   data: () => ({

@@ -20,7 +20,7 @@
                     background-color="grey darken-1"
                     color="yellow lighten-1"
                     height="10"
-                    value="20"
+                    :value="experience"
                     striped
                 />
               </v-col>
@@ -131,7 +131,7 @@
             <v-expansion-panel-content>
               <v-row v-for="(chunk, index) in allChunkedAchievements" :key="index">
                 <v-col cols="3" v-for="(a, idx) in chunk" :key="idx">
-                  <v-img :src="a.icon" :title="a.description"/>
+                  <v-img :src="a.icon" :title="`${a.title}\n${a.description}`"/>
                 </v-col>
               </v-row>
             </v-expansion-panel-content>
@@ -167,6 +167,20 @@ export default {
     },
     chunkedColleagues() {
       return this.$_.chunk(this.user.colleagues, 2)
+    },
+    experience() {
+      let experience = this.$store.getters.user.experience
+      if (experience === '0-1') {
+        return 20
+      } else if (experience === '1-3') {
+        return 40
+      } else if (experience === '3-6') {
+        return 60
+      } else if (experience === '6-12') {
+        return 80
+      } else {
+        return 100
+      }
     }
   },
   data: () => ({
