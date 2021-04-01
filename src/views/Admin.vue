@@ -287,8 +287,22 @@ export default {
       })
     },
     addAchievementToUsers() {
+      let users = []
+      this.selectedUsers.forEach((id) => {
+        let a = this.$store.getters.userAchievements.find((a) => {
+          return a.user_id === id && a.achievement_id === this.selectedAchievement
+        })
+        if (a) {
+          let user = this.$store.getters.users.find((user) => {
+            return user.id === id
+          })
+          this.$toast.info(`У пользователя ${user.full_name} уже есть данное достижение`)
+        } else {
+          users.push(id)
+        }
+      })
       let payload = {
-        users: this.selectedUsers,
+        users: users,
         achievement_id: this.selectedAchievement
       }
       this.$store.dispatch('addAchievementsToUsers', payload).then((response) => {

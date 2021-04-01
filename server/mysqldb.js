@@ -26,7 +26,7 @@ class DB {
   }
 
   selectAchievements() {
-    return this.db(ACHIEVEMENTS_TABLE).select().orderBy('id', 'asc')
+    return this.db(ACHIEVEMENTS_TABLE).select().where('shadow', '=', false)
   }
 
   selectShadowAchievements() {

@@ -14,15 +14,15 @@
               <v-col>
                 <p class="font-weight-bold text-lg-h4">{{ user.full_name }}
                   (Группа № {{ user.group_number }}, {{user.position }})</p>
-                <p class="subtitle-1">Стаж: {{ user.experience }}, Дата приёма в ТП2: {{ user.invite_date | humanDate }}</p>
+                <p class="subtitle-1">Стаж: {{ computedExperience }}, Дата приёма в ТП2: {{ user.invite_date | humanDate }}</p>
                 <br/>
-                <v-progress-linear
-                    background-color="grey darken-1"
-                    color="yellow lighten-1"
-                    height="10"
-                    :value="experience"
-                    striped
-                />
+<!--                <v-progress-linear-->
+<!--                    background-color="grey darken-1"-->
+<!--                    color="yellow lighten-1"-->
+<!--                    height="10"-->
+<!--                    :value="experience"-->
+<!--                    striped-->
+<!--                />-->
               </v-col>
             </v-row>
           </v-card-text>
@@ -181,6 +181,24 @@ export default {
       } else {
         return 100
       }
+    },
+    computedExperience() {
+      let now = this.$moment(new Date())
+      let end = this.$moment(this.user.invite_date)
+      let duration = this.$moment.duration(now.diff(end))
+      let daysDiff = duration.asDays()
+      if (daysDiff >= 1 && daysDiff < 31) {
+        return '0-1'
+      } else if (daysDiff >= 31 && daysDiff <= 90) {
+        return '1-3'
+      } else if (daysDiff >= 91 && daysDiff <= 180) {
+        return '3-6'
+      } else if (daysDiff >= 181 && daysDiff <= 360) {
+        return '6-12'
+      } else if (daysDiff >= 361) {
+        return '12+'
+      }
+      return ''
     }
   },
   data: () => ({

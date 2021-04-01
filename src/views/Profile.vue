@@ -36,15 +36,15 @@
               <v-col>
                 <p class="font-weight-bold text-lg-h4">{{ $store.getters.user.full_name }}
                   (Группа № {{ $store.getters.user.group_number }}, {{ $store.getters.user.position }})</p>
-                <p class="subtitle-1">Стаж: {{ $store.getters.user.experience }}, Дата приёма в ТП2: {{ $store.getters.user.invite_date | humanDate }}</p>
+                <p class="subtitle-1">Стаж: {{ computedExperience }}, Дата приёма в ТП2: {{ $store.getters.user.invite_date | humanDate }}</p>
                 <br/>
-                <v-progress-linear
-                    background-color="grey darken-1"
-                    color="yellow lighten-1"
-                    height="10"
-                    :value="experience"
-                    striped
-                />
+<!--                <v-progress-linear-->
+<!--                    background-color="grey darken-1"-->
+<!--                    color="yellow lighten-1"-->
+<!--                    height="10"-->
+<!--                    :value="experience"-->
+<!--                    striped-->
+<!--                />-->
               </v-col>
             </v-row>
           </v-card-text>
@@ -143,13 +143,13 @@
           <v-expansion-panel>
             <v-expansion-panel-header>Коллеги
               <v-spacer/>
-              <v-btn text @click="toAllUsers">Все</v-btn>
+              <v-btn link text to="/users">Все</v-btn>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-list rounded>
                 <v-row v-for="(chunk, index) in chunkedColleagues" :key="index">
-                  <v-col v-for="(c, idx) in chunk" :key="idx" @click="openUserProfile(c.winlogin)">
-                    <v-list-item link>
+                  <v-col v-for="(c, idx) in chunk" :key="idx">
+                    <v-list-item link :to="`/user/${c.winlogin}`">
                       <v-avatar left color="indigo" size="50">
                         <v-img :src="c.avatar" v-if="c.avatar"/>
                         <span v-else class="headline">{{ c.full_name.substring(0,1) }}</span>
@@ -240,6 +240,24 @@ export default {
       } else {
         return 100
       }
+    },
+    computedExperience() {
+      let now = this.$moment(new Date())
+      let end = this.$moment(this.$store.getters.user.invite_date)
+      let duration = this.$moment.duration(now.diff(end))
+      let daysDiff = duration.asDays()
+      if (daysDiff >= 1 && daysDiff < 31) {
+        return '0-1'
+      } else if (daysDiff >= 31 && daysDiff <= 90) {
+        return '1-3'
+      } else if (daysDiff >= 91 && daysDiff <= 180) {
+        return '3-6'
+      } else if (daysDiff >= 181 && daysDiff <= 360) {
+        return '6-12'
+      } else if (daysDiff >= 361) {
+        return '12+'
+      }
+      return ''
     }
   },
   data: () => ({
@@ -275,6 +293,18 @@ export default {
       this.editAboutMe = !this.editAboutMe
     },
     saveSocial() {
+      if (!this.user.vk.includes('https')) {
+        this.$toast.error(`При указании ссылки на VK необходимо указывать и протокол. Например https://vk.com/xxx`)
+        return
+      }
+      if (!this.user.instagram.includes('https')) {
+        this.$toast.error(`При указании ссылки на Instagram необходимо указывать и протокол. Например https://instagram.com/xxx`)
+        return
+      }
+      if (!this.user.vk.includes('https')) {
+        this.$toast.error(`При указании ссылки на Telegram необходимо указывать и протокол. Например https://t.me/xxx`)
+        return
+      }
       this.$store.dispatch('saveUser', this.user).then((response) => {
         if (response.data.success) {
           this.$toast.success(`Соц. сети сохранены`)
