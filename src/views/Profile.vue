@@ -61,6 +61,7 @@
               </v-col>
               <v-col>
                 <p class="subtitle-1">Это достижение есть у {{ percentage(a.id) }}% пользователей</p>
+                <p class="subtitle-1">Получена: {{ a.date_of_receiving }}</p>
               </v-col>
             </v-row>
           </v-card-text>
@@ -223,7 +224,23 @@ export default {
       return array
     },
     allChunkedAchievements() {
-      return this.$_.chunk(this.$store.getters.shadowAchievements, 4)
+      let array = []
+      let shadow = this.$store.getters.shadowAchievements
+      this.$store.getters.user.achievements.forEach((a) => {
+        let ach = this.$store.getters.achievements.find((ach) => {
+          return ach.id === a.achievement_id
+        })
+        array.push(ach)
+      })
+      array.forEach((a) => {
+        let achIndex = shadow.findIndex((ach) => {
+          return ach.id === a.id
+        })
+        shadow.splice(achIndex, 1)
+      })
+      array = array.concat(shadow)
+      return this.$_.chunk(array, 4)
+      // return this.$_.chunk(this.$store.getters.shadowAchievements, 4)
     },
     chunkedColleagues() {
       return this.$_.chunk(this.$store.getters.user.colleagues, 2)
