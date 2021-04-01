@@ -54,7 +54,7 @@
           <v-card-text>
             <v-row v-for="(a, index) in myAchievements" :key="index">
               <v-col cols="1">
-                <v-img :src="a.icon" :title="`${a.title}\n${a.description}`"/>
+                <v-img :src="a.icon" :title="`${a.title}\n${a.description}\nПолучена: ${a.date_of_receiving}`"/>
               </v-col>
               <v-col cols="7">
                 <p class="text-lg-h6">{{ a.title }}<br/>{{ a.description }}</p>
@@ -211,15 +211,16 @@ export default {
   },
   computed: {
     myAchievements() {
-      let achievArray = []
-      if (this.$store.getters.user.achievements.length > 0) {
-        this.$store.getters.user.achievements.forEach((userAchiev) => {
-          achievArray.push(this.$store.getters.achievements.find((a) => {
-            return a.id === userAchiev.achievement_id
-          }))
+      let array = []
+      if (this.$store.getters.user.achievements)
+      this.$store.getters.user.achievements.forEach((a) => {
+        let ach = this.$store.getters.achievements.find((ach) => {
+          return ach.id === a.achievement_id
         })
-      }
-      return achievArray
+        ach.date_of_receiving = this.$moment(a.date_of_receiving).format('DD.MM.YYYY')
+        array.push(ach)
+      })
+      return array
     },
     allChunkedAchievements() {
       return this.$_.chunk(this.$store.getters.shadowAchievements, 4)
@@ -244,11 +245,10 @@ export default {
     computedExperience() {
       let now = this.$moment(new Date())
       let end = this.$moment(this.$store.getters.user.invite_date)
-      let duration = this.$moment.duration(now.diff(end))
-      let daysDiff = duration.asDays()
-      if (daysDiff >= 1 && daysDiff < 31) {
+      let daysDiff = now.diff(end, 'days')
+      if (daysDiff >= 1 && daysDiff <= 31) {
         return '0-1'
-      } else if (daysDiff >= 31 && daysDiff <= 90) {
+      } else if (daysDiff >= 32 && daysDiff <= 90) {
         return '1-3'
       } else if (daysDiff >= 91 && daysDiff <= 180) {
         return '3-6'
@@ -323,16 +323,9 @@ export default {
         }
       })
     },
-    openUserProfile(winlogin) {
-      this.$router.push(`/user/${winlogin}`)
-    },
     editSocial() {
       this.showEditSocialInputs = !this.showEditSocialInputs
     },
-    toAllUsers(event) {
-      event.preventDefault()
-      this.$router.push('/users')
-    }
   }
 }
 </script>

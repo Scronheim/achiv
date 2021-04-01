@@ -148,6 +148,7 @@ export default {
   mounted() {
     this.loadUserInfo()
     this.$store.dispatch('getAchievements')
+    this.$store.dispatch('getUsersAchievements')
     this.$store.dispatch('getShadowAchievements')
   },
   computed: {
@@ -185,8 +186,7 @@ export default {
     computedExperience() {
       let now = this.$moment(new Date())
       let end = this.$moment(this.user.invite_date)
-      let duration = this.$moment.duration(now.diff(end))
-      let daysDiff = duration.asDays()
+      let daysDiff = now.diff(end, 'days')
       if (daysDiff >= 1 && daysDiff < 31) {
         return '0-1'
       } else if (daysDiff >= 31 && daysDiff <= 90) {

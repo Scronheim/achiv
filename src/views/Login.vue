@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid>
-    <v-row align="center" justify="center">
+  <v-container fluid class="fill-height mt-4">
+    <v-row justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-card class="elevation-12">
+        <v-card class="elevation-12 ml-3">
           <v-toolbar color="primary" dark>
             <v-toolbar-title>Форма входа</v-toolbar-title>
-            <v-spacer></v-spacer>
+            <v-spacer/>
           </v-toolbar>
           <v-card-text>
             <v-form v-if="!showPasswordForm">

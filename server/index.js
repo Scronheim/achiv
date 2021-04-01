@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const moment = require('moment');
 const FileUpload = require('express-fileupload');
-const _ = require('lodash')
+// const _ = require('lodash')
 const fs = require('fs').promises
 
 const mysqlDB = new mysqldb();
@@ -50,7 +50,7 @@ router.route('/api/colleagues')
   })
 
 router.delete('/api/deleteUserAchievement/:id', (req, res) => {
-  mysqlDB.deleteUserAchievement(req.params.id).then((response) => {
+  mysqlDB.deleteUserAchievement(req.params.id).then(() => {
     res.json({success: true})
   })
 })
@@ -73,7 +73,8 @@ router.post('/api/addAchievementToUsers', (req, res) => {
   req.body.users.forEach((id, index, array) => {
     let data = {
       user_id: id,
-      achievement_id: req.body.achievement_id
+      achievement_id: req.body.achievement_id,
+      date_of_receiving: req.body.date_of_receiving
     }
     mysqlDB.addAchievementToUser(data).then(() => {
       counter++

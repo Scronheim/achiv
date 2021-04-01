@@ -232,9 +232,9 @@ export default {
       let now = this.$moment()
       let inviteDate = this.$moment(this.addedUser.invite_date)
       let daysDiff = now.diff(inviteDate, 'days')
-      if (daysDiff >= 1 && daysDiff < 31) {
+      if (daysDiff >= 1 && daysDiff <= 31) {
         this.addedUser.experience = '0-1'
-      } else if (daysDiff >= 31 && daysDiff <= 90) {
+      } else if (daysDiff >= 32 && daysDiff <= 90) {
         this.addedUser.experience = '1-3'
       } else if (daysDiff >= 91 && daysDiff <= 180) {
         this.addedUser.experience = '3-6'
@@ -303,7 +303,8 @@ export default {
       })
       let payload = {
         users: users,
-        achievement_id: this.selectedAchievement
+        achievement_id: this.selectedAchievement,
+        date_of_receiving: this.$moment().format('YYYY-MM-DD')
       }
       this.$store.dispatch('addAchievementsToUsers', payload).then((response) => {
         if (response.data.success) {

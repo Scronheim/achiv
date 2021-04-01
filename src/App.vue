@@ -6,7 +6,7 @@
           <v-img alt="TP2 Logo" class="shrink mr-2" contain src="/img/tp2-logo.png" transition="scale-transition" width="300"/>
         </v-btn>
       </div>
-
+      <v-icon title="Бета">mdi-beta</v-icon> версия сайта
       <v-spacer/>
 
       <span v-if="isAuth">
@@ -38,10 +38,10 @@
       </span>
     </v-app-bar>
 
-    <v-main>
+    <v-main :style="['/login', '/'].includes($route.path) ? 'background-image: url(/img/background.png)': ''">
       <router-view/>
     </v-main>
-    <v-footer padless>
+    <v-footer padless dark>
       <v-row justify="center" no-gutters>
         <v-btn color="white" text rounded icon class="my-2" href="mailto:irsharko@prm.beeline.ru" title="Письмо Ире)">
           <v-icon>mdi-at</v-icon>
