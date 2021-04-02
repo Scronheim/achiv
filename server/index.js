@@ -159,7 +159,7 @@ router.post('/api/login', (req, res) => {
       } else {
         res.status(200).send({password: false})
       }
-      if (!passwordIsValid) return res.status(401).send({ auth: false, token: null});
+      if (!passwordIsValid) res.status(401).send({ auth: false, token: null});
       let token = jwt.sign({ id: response[0].id }, config.secret, {
         expiresIn: 86400 // expires in 24 hours
       });
